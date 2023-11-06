@@ -1,55 +1,95 @@
+// Nice Solution just need to be revised for some days then all set 
+// little bit lengthy so ...
+
 class LRUCache {
-    Node head = new Node(0, 0), tail = new Node(0, 0);
-    Map < Integer, Node > map = new HashMap();
+
+    
+    final Node head = new Node();     // we're not making any change in head or tail 
+    final Node tail = new Node();
+    Map<Integer , Node> map;
     int capacity;
-
-    public LRUCache(int _capacity) {
-        capacity = _capacity;
-        head.next = tail;
-        tail.prev = head;
+    
+    // this is class constructor 
+    public LRUCache(int capacity) {
+        map = new HashMap(capacity);
+        this.capacity = capacity;
+        head.next=tail;
+        tail.next=head;
     }
-
+    
     public int get(int key) {
-        if (map.containsKey(key)) {
-            Node node = map.get(key);
+        int result=-1;
+        Node node = map.get(key);
+        if(node!=null)
+        {
             remove(node);
-            insert(node);
-            return node.value;
-        } else {
-            return -1;
+            add(node);
+            result=node.value;
         }
+        
+        return result;
     }
-
+    
+    // here every operation will be on map and DLL both 
     public void put(int key, int value) {
-        if (map.containsKey(key)) {
-            remove(map.get(key));
+        Node node = map.get(key);
+        if(node!=null)
+        {
+            remove(node);
+            node.value=value;
+            add(node);
         }
-        if (map.size() == capacity) {
-            remove(tail.prev);
+        else
+        {
+            
+            if(map.size()==capacity)
+            {
+                map.remove(tail.prev.key);
+                remove(tail.prev);
+            }
+            Node newNode = new Node();
+            newNode.key = key;
+            newNode.value = value;
+            map.put(key , newNode);
+            add(newNode);
         }
-        insert(new Node(key, value));
     }
-
-    private void remove(Node node) {
-        map.remove(node.key);
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
+    
+    // here operation will be on DLL only
+    // remove node from dll
+    public void remove(Node node)
+    {
+        // Remove from  DLL and this we can remove from anywhere  
+        Node node_prev = node.prev;
+        Node node_next = node.next;
+        node_prev.next = node_next;
+        node_next.prev = node_prev;
+        
     }
-
-    private void insert(Node node) {
-        map.put(node.key, node);
-        node.next = head.next;
-        node.next.prev = node;
-        head.next = node;
+    
+    // here also operations will be on DLL only 
+    // add node in doubly linked list 
+    public void add(Node node)
+    {
+        // will add the node in start of DLL after head
+        Node head_next = head.next;
+        node.next=head_next;
+        head_next.prev= node;
+        head.next=node;
         node.prev = head;
     }
-
-    class Node {
-        Node prev, next;
-        int key, value;
-        Node(int _key, int _value) {
-            key = _key;
-            value = _value;
-        }
+    
+    class Node{
+        int key ;
+        int value;
+        Node prev;
+        Node next;
     }
 }
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
