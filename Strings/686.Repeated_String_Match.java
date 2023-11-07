@@ -1,3 +1,4 @@
+// easy solution but rewise for few times 
 class Solution {
     public int repeatedStringMatch(String a, String b) {
         
